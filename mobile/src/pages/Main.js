@@ -7,8 +7,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import api from '../services/api';
 
 function Main({ navigation }) {
-    const [ currentRegion, setCurrentRegion ] = useState(null);
     const [ devs, setDevs ] = useState([]);
+    const [ currentRegion, setCurrentRegion ] = useState(null);
     const [ techs, setTechs ] = useState('');
 
     useEffect(() => {
@@ -16,17 +16,17 @@ function Main({ navigation }) {
             const { granted } = await requestPermissionsAsync();
 
             if(granted) {
-                const { coords } = getCurrentPositionAsync({
-                    enableHighAccuracy: true,
+                const { coords } = await getCurrentPositionAsync({
+                    enableHighAccuracy: true
                 });
 
                 const { latitude, longitude } = coords;
 
                 setCurrentRegion({
-                    latitude,
                     longitude,
-                    latitudeDelta: 0.04,
-                    longitudeDelta: 0.04,
+                    latitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01
                 })
             }
         }
@@ -39,8 +39,8 @@ function Main({ navigation }) {
 
         const respose = await api.get('/search', {
             params: {
-                latitude,
                 longitude,
+                latitude,
                 techs
             }
         })
@@ -59,7 +59,7 @@ function Main({ navigation }) {
     return (
         <>
             <MapView  
-                onRegionChangeComplete={handleRegionChanged} 
+                onRegionChange={handleRegionChanged} 
                 initialRegion={currentRegion} 
                 style={styles.map}
             >
@@ -73,9 +73,9 @@ function Main({ navigation }) {
                     >
                         <Image 
                             style={styles.avatar}
-                            src={{uri: dev.avatar_url}} 
+                            source={{uri: dev.avatar_url}} 
                         />
-                        <Callout onPress={() => { navigation.navigate('Profile'), { github_username: dev.github_username }}}>
+                        <Callout onPress={() => { navigation.navigate('Profile', { github_username: dev.github_username })}}>
                             <View style={styles.callout}> 
                                 <Text style={styles.devName}>{dev.name}</Text>
                                 <Text style={styles.devBio}>{dev.bio}</Text>
